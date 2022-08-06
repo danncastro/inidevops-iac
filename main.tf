@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "digitalocean" {
-  token = var.db_token
+  token = var.do_token
 }
 
 resource "digitalocean_kubernetes_cluster" "k8s_iniciativa" {
@@ -27,13 +27,18 @@ resource "digitalocean_kubernetes_node_pool" "node_premium" {
   cluster_id = digitalocean_kubernetes_cluster.k8s_iniciativa.id
   name       = "premium"
   size       = "s-2vcpu-2gb"
-  node_count = 2
+  node_count = 1
 }
 
-variable "db_token" {}
+variable "do_token" {}
 variable "k8s_name" {}
 variable "region" {}
 
 output "kube_endpoint" {
   value = digitalocean_kubernetes_cluster.k8s_iniciativa.endpoint
+}
+
+resource "local_file" "kube_config" {
+    content  = digitalocean_kubernetes_cluster.k8s_iniciativa.kube_config.0.raw_config
+    filename = "kube_config.yaml"
 }
